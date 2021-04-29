@@ -7,6 +7,7 @@ import (
 	"net"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/projectdiscovery/httpx/common/fileutil"
@@ -16,6 +17,7 @@ import (
 
 // Timeout to check for a connection - in seconds
 var timout time.Duration = 2
+var wg sync.WaitGroup
 
 func getips(args []string) {
 
@@ -24,24 +26,29 @@ func getips(args []string) {
 		for scanner.Scan() {
 			text := strings.TrimSpace(scanner.Text())
 			if len(text) != 0 {
-				process_ips(text)
+				wg.Add(1)
+				go process_ips(text)
 			}
 		}
-
+		wg.Wait()
 	} else if len(args) == 2 {
 		filename := args[1]
 		if fileutil.FileExists(filename) {
 			ips := fileutil.LoadFile(filename)
 			for _, ip := range ips {
-				process_ips(ip)
+				if len(ip) != 0 {
+					wg.Add(1)
+					go process_ips(ip)
+				}
 			}
 		}
+		wg.Wait()
+
 	}
 
 }
 
 func gethostname(ip_port string) string {
-
 	conf := &tls.Config{
 		InsecureSkipVerify: true,
 	}
@@ -71,7 +78,7 @@ func gethostname(ip_port string) string {
 }
 
 func process_ips(ip string) {
-
+	defer wg.Done()
 	port := "443"
 	if strings.Count(ip, ":") == 0 {
 		var ip_port string = ip + ":" + port
@@ -101,6 +108,7 @@ func main() {
 		fmt.Println("Please provide one file with list of IPs")
 	} else {
 		getips(args)
+
 	}
 
 }
