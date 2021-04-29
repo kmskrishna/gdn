@@ -17,14 +17,14 @@ import (
 // Timeout to check for a connection - in seconds
 var timout time.Duration = 2
 
-func getips(args []string) []string {
-	var inp_ips []string
+func getips(args []string) {
+
 	if fileutil.HasStdin() && len(args) == 1 {
 		scanner := bufio.NewScanner(os.Stdin)
 		for scanner.Scan() {
 			text := strings.TrimSpace(scanner.Text())
 			if len(text) != 0 {
-				inp_ips = append(inp_ips, text)
+				process_ips(text)
 			}
 		}
 
@@ -32,10 +32,11 @@ func getips(args []string) []string {
 		filename := args[1]
 		if fileutil.FileExists(filename) {
 			ips := fileutil.LoadFile(filename)
-			inp_ips = append(inp_ips, ips...)
+			for _, ip := range ips {
+				process_ips(ip)
+			}
 		}
 	}
-	return inp_ips
 
 }
 
@@ -69,44 +70,37 @@ func gethostname(ip_port string) string {
 	return domainname
 }
 
-func main() {
+func process_ips(ip string) {
 
 	port := "443"
+	if strings.Count(ip, ":") == 0 {
+		var ip_port string = ip + ":" + port
+		hostname := gethostname(ip_port)
+		fmt.Println(ip, strings.ToLower(hostname))
+	} else if strings.Count(ip, ":") == 1 && !strings.Contains(ip, "https") {
+		string_split := strings.Split(ip, ":")
+		var ip_port string = string_split[0] + ":" + string_split[1]
+		hostname := gethostname(ip_port)
+		fmt.Println(ip, strings.ToLower(hostname))
+	} else if strings.Count(ip, ":") == 1 && strings.Contains(ip, "https") {
+		string_split := strings.Split(ip, "//")
+		var ip_port string = string_split[1] + ":" + port
+		hostname := gethostname(ip_port)
+		fmt.Println(ip, strings.ToLower(hostname))
+	} else if strings.Count(ip, ":") == 2 && strings.Contains(ip, "https") {
+		string_split := strings.Split(ip, ":")
+		var ip_port string = strings.Replace(string_split[1], "//", "", -1) + ":" + string_split[2]
+		hostname := gethostname(ip_port)
+		fmt.Println(ip, strings.ToLower(hostname))
+	}
+}
+
+func main() {
 	args := os.Args
-	// fmt.Println(len(args))
 	if !fileutil.HasStdin() && len(args) != 2 {
 		fmt.Println("Please provide one file with list of IPs")
 	} else {
-		ips := getips(args)
-		for _, ip := range ips {
-
-			if strings.Count(ip, ":") == 0 {
-				var ip_port string = ip + ":" + port
-				hostname := gethostname(ip_port)
-				fmt.Println(ip, strings.ToLower(hostname))
-			} else if strings.Count(ip, ":") == 1 && !strings.Contains(ip, "https") {
-				string_split := strings.Split(ip, ":")
-				var ip_port string = string_split[0] + ":" + string_split[1]
-				hostname := gethostname(ip_port)
-				fmt.Println(ip, strings.ToLower(hostname))
-			} else if strings.Count(ip, ":") == 1 && strings.Contains(ip, "https") {
-				string_split := strings.Split(ip, "//")
-				var ip_port string = string_split[1] + ":" + port
-				hostname := gethostname(ip_port)
-				fmt.Println(ip, strings.ToLower(hostname))
-			} else if strings.Count(ip, ":") == 2 && strings.Contains(ip, "https") {
-				string_split := strings.Split(ip, ":")
-				var ip_port string = strings.Replace(string_split[1], "//", "", -1) + ":" + string_split[2]
-				hostname := gethostname(ip_port)
-				fmt.Println(ip, strings.ToLower(hostname))
-			}
-			// } else if strings.Contains(ip, "http://") {
-			// 	fmt.Println("HTTP url provided. HTTPS needed")
-			// } else {
-			// 	fmt.Println("IP address format is wrong")
-			// }
-
-		}
+		getips(args)
 	}
 
 }
