@@ -1,4 +1,4 @@
-# Get Domain Name
+# Get Domain Name From IP
 __gdn__ is a Go module to get domain name from SSL certificates given an IP address
 
 ## Installation Instructions
