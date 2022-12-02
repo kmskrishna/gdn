@@ -20,32 +20,28 @@ var timout time.Duration = 2
 var wg sync.WaitGroup
 
 func getips(args []string) {
+	var input []string
 
 	if fileutil.HasStdin() && len(args) == 1 {
 		scanner := bufio.NewScanner(os.Stdin)
 		for scanner.Scan() {
 			text := strings.TrimSpace(scanner.Text())
 			if len(text) != 0 {
-				wg.Add(1)
-				go process_ips(text)
+				input = append(input, text)
 			}
 		}
-		wg.Wait()
 	} else if len(args) == 2 {
 		filename := args[1]
-		if fileutil.FileExists(filename) {
-			ips := fileutil.LoadFile(filename)
-			for _, ip := range ips {
-				if len(ip) != 0 {
-					wg.Add(1)
-					go process_ips(ip)
-				}
-			}
+		if _, err := os.Stat(filename); os.IsNotExist(err) {
+			input = fileutil.LoadFile(filename)
 		}
-		wg.Wait()
-
 	}
 
+	for _, ip := range input {
+		wg.Add(1)
+		go process_ips(ip)
+	}
+	wg.Wait()
 }
 
 func gethostname(ip_port string) string {
@@ -102,7 +98,5 @@ func main() {
 		fmt.Println("Please provide one file with list of IPs")
 	} else {
 		getips(args)
-
 	}
-
 }
