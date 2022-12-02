@@ -79,27 +79,21 @@ func gethostname(ip_port string) string {
 
 func process_ips(ip string) {
 	defer wg.Done()
+
+	var ip_port string
 	port := "443"
-	if strings.Count(ip, ":") == 0 {
-		var ip_port string = ip + ":" + port
-		hostname := gethostname(ip_port)
-		fmt.Println(ip, strings.ToLower(hostname))
-	} else if strings.Count(ip, ":") == 1 && !strings.Contains(ip, "https") {
-		string_split := strings.Split(ip, ":")
-		var ip_port string = string_split[0] + ":" + string_split[1]
-		hostname := gethostname(ip_port)
-		fmt.Println(ip, strings.ToLower(hostname))
-	} else if strings.Count(ip, ":") == 1 && strings.Contains(ip, "https") {
-		string_split := strings.Split(ip, "//")
-		var ip_port string = string_split[1] + ":" + port
-		hostname := gethostname(ip_port)
-		fmt.Println(ip, strings.ToLower(hostname))
-	} else if strings.Count(ip, ":") == 2 && strings.Contains(ip, "https") {
-		string_split := strings.Split(ip, ":")
-		var ip_port string = strings.Replace(string_split[1], "//", "", -1) + ":" + string_split[2]
-		hostname := gethostname(ip_port)
-		fmt.Println(ip, strings.ToLower(hostname))
+	if strings.Contains(ip, "https") {
+		ip_port = strings.TrimPrefix(ip, "https://")
+	} else {
+		ip_port = ip
 	}
+
+	if strings.Count(ip_port, ":") == 0 {
+		ip_port = ip_port + ":" + port
+	}
+
+	hostname := gethostname(ip_port)
+	fmt.Println(ip, strings.ToLower(hostname))
 }
 
 func main() {
