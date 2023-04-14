@@ -10,9 +10,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/projectdiscovery/httpx/common/fileutil"
-
 	tld "github.com/jpillora/go-tld"
+	"github.com/projectdiscovery/httpx/common/fileutil"
 )
 
 // Timeout to check for a connection - in seconds
@@ -24,6 +23,7 @@ func getips(args []string) {
 
 	if fileutil.HasStdin() && len(args) == 1 {
 		scanner := bufio.NewScanner(os.Stdin)
+
 		for scanner.Scan() {
 			text := strings.TrimSpace(scanner.Text())
 			if len(text) != 0 {
@@ -32,9 +32,7 @@ func getips(args []string) {
 		}
 	} else if len(args) == 2 {
 		filename := args[1]
-		if _, err := os.Stat(filename); os.IsNotExist(err) {
-			input = fileutil.LoadFile(filename)
-		}
+		input = fileutil.LoadFile(filename)
 	}
 
 	for _, ip := range input {
