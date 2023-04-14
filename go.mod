@@ -10,7 +10,7 @@ require (
 require (
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/aymerick/douceur v0.2.0 // indirect
-	-vgithub.com/gorilla/css v1.0.0 // indirect
+	github.com/gorilla/css v1.0.0 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.23 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/projectdiscovery/utils v0.0.16 // indirect
