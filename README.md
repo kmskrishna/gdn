@@ -7,7 +7,7 @@ __gdn__ is a Go module to get domain name from SSL certificates given an IP addr
 gdn requires go1.14+ to install successfully. Run the following command to get the repo -
 
 ```
-▶ GO111MODULE=on go get -v github.com/kmskrishna/gdn
+go install github.com/kmskrishna/gdn@latest
 ```
 ### From Github
 

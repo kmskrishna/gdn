@@ -1,6 +1,6 @@
 module github.com/kmskrishna/gdn
 
-go 1.20
+go 1.18
 
 require (
 	github.com/jpillora/go-tld v1.2.1
